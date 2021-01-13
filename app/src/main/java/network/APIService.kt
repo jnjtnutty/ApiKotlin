@@ -1,9 +1,7 @@
 package network
 
 import MobileSub
-import android.content.Context
 import android.util.Log
-import com.example.android.apitest.MainActivity
 import data.LoginResponse
 import data.Promotion
 import data.SessionManager
