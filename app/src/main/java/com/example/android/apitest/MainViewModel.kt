@@ -1,23 +1,22 @@
 package com.example.android.apitest
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import data.SessionManager
 import network.APIService
-import network.Api
 
 class MainViewModel {
 
-    fun OnLogin(){
+
+    fun OnLogin(sessionManager: SessionManager){
         Log.i("MainActivity", "Call onLogin()")
-        APIService().userLogin()
+        APIService().userLogin(sessionManager)
     }
-    fun OnGetMobile(){
+    fun OnGetMobile(sessionManager: SessionManager){
             Log.i("MainActivity", "Call getmobile()")
-            APIService().getMobile()
+            APIService().getMobile(sessionManager)
     }
-    fun OnGetPromotion(){
+    fun OnGetPromotion(sessionManager: SessionManager){
             Log.i("MainActivity", "Call getpromotion()")
-            APIService().getPro()
+            APIService().getPro(sessionManager)
     }
 }

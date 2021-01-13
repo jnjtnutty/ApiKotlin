@@ -1,11 +1,12 @@
 package network
 
 import MobileSub
+import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import com.example.android.apitest.MainActivity
 import data.LoginResponse
 import data.Promotion
+import data.SessionManager
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -17,13 +18,8 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 
-
 class APIService {
-
     private var _token = ""
-    private var _mobileSub = MutableLiveData<String>()
-    val mobileSub: LiveData<String>
-        get() = _mobileSub
 
     private val BASE_URL = "https://fibo.jaymart.org/api/"
 
@@ -58,46 +54,50 @@ class APIService {
             .client(getUnsafeOkHttpClient())
             .build()
     }
-    private val retrofitService : Api by lazy{
+    val retrofitService : Api by lazy{
         buildRetrofit().create(Api::class.java)
     }
 
-
-    fun userLogin(){
+    fun userLogin(sessionManager: SessionManager){
         val userInfo = Api.LoginInfo("admin@jaymart", "Jaymart@2020")
         retrofitService.getToken(userInfo).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                _token = response.body()?.token.toString()
-                Log.i("MainActivity", "token : ${_token}")
+                val loginResponse = response.body()
+                sessionManager.saveAuthToken(loginResponse!!.token)
+                Log.i("MainActivity", "token : $loginResponse")
             }
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                Log.i("MainActivity","Need to Login first!")
+                Log.i("MainActivity", "Need to Login first!")
             }
         })
     }
-    fun getMobile(){
-        Log.i("MainActivity","_token = $_token")
-        retrofitService.getMobileSub("Bearer $_token").enqueue(object : Callback<MobileSub> {
+    fun getMobile(sessionManager: SessionManager){
+        Log.i("MainActivity", "_token = ${sessionManager.fetchAuthToken()}")
+        retrofitService.getMobileSub("Bearer ${sessionManager.fetchAuthToken()}").enqueue(object :
+            Callback<MobileSub> {
             override fun onResponse(call: Call<MobileSub>, response: Response<MobileSub>) {
 //                Log.i("MainActivity", "Bearer $_token")
-                if(response.isSuccessful){
+                if (response.isSuccessful) {
                     val data = response.body()
                     Log.i("MainActivity", "modile data : $data")
                 }
             }
+
             override fun onFailure(call: Call<MobileSub>, t: Throwable) {
                 Log.i("MainActivity", t.message.toString())
             }
         })
     }
-    fun getPro(){
-        retrofitService.getPromotion("Bearer $_token").enqueue(object : Callback<Promotion> {
+    fun getPro(sessionManager: SessionManager){
+        retrofitService.getPromotion("Bearer ${sessionManager.fetchAuthToken()}").enqueue(object :
+            Callback<Promotion> {
             override fun onResponse(call: Call<Promotion>, response: Response<Promotion>) {
-                if(response.isSuccessful){
-                    val topic = response.body()
-                    Log.i("MainActivity", "modile data : $topic")
+                if (response.isSuccessful) {
+                    val data = response.body()
+                    Log.i("MainActivity", "modile data : $data")
                 }
             }
+
             override fun onFailure(call: Call<Promotion>, t: Throwable) {
                 Log.i("MainActivity", t.message.toString())
             }

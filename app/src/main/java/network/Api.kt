@@ -1,7 +1,9 @@
 package network
 
 import MobileSub
+import android.provider.SyncStateContract
 import com.google.gson.JsonObject
+import com.google.gson.annotations.SerializedName
 import data.LoginResponse
 import data.Promotion
 import retrofit2.Call
@@ -23,4 +25,5 @@ interface Api {
 
     @GET("promotion")
     fun getPromotion(@Header("Authorization") authHeader: String?): Call<Promotion>
+
 }
